@@ -104,7 +104,7 @@
 
                 // Обработка кнопок виртуальной клавиатуры
                 if (keyboard) {
-                    // Удаляем все существующие обработчики
+                    // Удаляем все существующие обработчики (если они были)
                     const oldKeys = keyboard.querySelectorAll('.key');
                     oldKeys.forEach(key => {
                         const newKey = key.cloneNode(true);
@@ -122,6 +122,9 @@
                         };
                     });
                 }
+
+                // Initialize tooltips for all [data-help] elements
+                initializeTooltips();
 
                 // Обработка ввода с клавиатуры (keydown)
                 inputField.addEventListener('keydown', function(e) {

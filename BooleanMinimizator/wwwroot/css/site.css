@@ -1,0 +1,634 @@
+/* Подключение шрифта Bebas Neue */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif; /* Шрифт для клавиш */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.calculator {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 800px;
+    margin: 20px auto;
+}
+
+h1, h2 {
+    font-size: 22px;
+}
+
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 18px;
+    transition: border-color 0.3s ease;
+}
+
+input.input-error {
+    border-color: #ff4444;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+button {
+    font-family: 'Poppins', sans-serif; /* Шрифт для клавиш */
+    background-color: #555;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-top: 20px; /* Опускаем кнопку на 20px */
+}
+
+button:hover {
+    background-color: #333;
+}
+
+/* СТИЛИ КЛАВИАТУРЫ */
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 колонки */
+    gap: 10px;
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(145deg, #ffffff, #ffffff);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 2px solid #888;
+}
+
+.key {
+    font-family: 'Poppins', sans-serif; /* Шрифт для клавиш */
+    background: linear-gradient(145deg, #444, #555); /* Градиент черного */
+    color: white;
+    border: none;
+    padding: 20px;
+    font-size: 20px;
+    font-weight: 15;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.key:hover {
+    background: linear-gradient(145deg, #222, #333); /* Темно-серый при наведении */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), inset 0 2px 3px rgba(255, 255, 255, 0.1);
+}
+
+#output {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.instructions {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 800px;
+    margin: 30px auto;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#toggleKeyboard {
+    background: linear-gradient(145deg, #555, #555);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-bottom: 10px;
+}
+
+/* Общие стили таблиц */
+.truth-table, .karnaugh-map {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.truth-table th, .truth-table td,
+.karnaugh-map th, .karnaugh-map td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.truth-table th, .karnaugh-map th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.truth-table tr:nth-child(even),
+.karnaugh-map tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.truth-table tr:hover,
+.karnaugh-map tr:hover {
+    background-color: #e0e0e0;
+}
+
+/* Отдельное оформление ячеек карты Карно */
+.karnaugh-map td.one {
+    background-color: #a5d6a7; /* Светло-зеленый */
+    font-weight: bold;
+}
+
+.karnaugh-map td.zero {
+    font-weight: bold;
+}
+
+/* Стили для кнопки Поддержка */
+#helpButton {
+    background: linear-gradient(145deg, #555, #555);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-bottom: 10px;
+}
+
+/* Стили для блока с текстом Поддержки */
+.support-text {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 800px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1; /* Базовый уровень */
+}
+
+/* Стили для таблицы истинности */
+.truth-table {
+    width: 100%;
+    max-width: 800px;
+    margin: 15px auto;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.truth-table th, .truth-table td {
+    border: 1px solid #ddd;
+    padding: 12px 18px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.truth-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.truth-table td {
+    background-color: #ffffff;
+    color: #495057;
+    font-weight: 500;
+}
+
+.truth-table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* Увеличиваем отступы */
+.alert {
+    margin-top: 20px; /* Отступ сверху */
+    margin-bottom: 20px; /* Отступ снизу */
+}
+
+/* Добавляем пояснения */
+.form-text.text-muted {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: block;
+    margin-top: 5px;
+}
+
+.karnaugh-map {
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.karnaugh-map th, .karnaugh-map td {
+    border: 1px solid #ddd;
+    padding: 12px 18px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.karnaugh-map th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.karnaugh-map tr td:first-child {
+    background-color: #f8f9fa !important;
+    font-weight: 600;
+    color: #495057;
+}
+
+.karnaugh-map td {
+    background-color: #ffffff;
+}
+
+.karnaugh-map td.one {
+    background-color: #ffffff;
+    color: #495057;
+    font-weight: 500;
+}
+
+.karnaugh-map td.zero {
+    background-color: #ffffff;
+    color: #495057;
+    font-weight: 500;
+}
+
+.karnaugh-map td.highlight {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    font-weight: 600;
+    border: 2px solid #90caf9;
+}
+
+.karnaugh-map td.zero-highlight {
+    background-color: #fce4ec;
+    color: #c2185b;
+    font-weight: 600;
+    border: 2px solid #f48fb1;
+}
+
+.highlight-area {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.highlight-area h5 {
+    color: #000000;
+    margin: 15px 0;
+    font-weight: 600;
+    font-size: 17px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.highlight-area h5:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background-color: #ddd;
+}
+
+.highlight-area p {
+    color: #000000;
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+.highlight-area strong {
+    color: #000000;
+}
+
+.stepByStep {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.solution-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 15px 0 25px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.solution-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background-color: #ddd;
+}
+
+.solution-section {
+    text-align: left;
+    position: relative;
+    margin: 25px 0;
+}
+
+.solution-section h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 20px 0;
+    color: #000000;
+    padding: 8px 0;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    text-align: center;
+    position: relative;
+    display: block;
+}
+
+.solution-section h4:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background-color: #ddd;
+}
+
+/* Специальные стили для заголовков минимизации */
+.solution-section h4:contains("Минимизация") {
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+    background: none;
+}
+
+/* Отдельные стили для ДНФ и КНФ */
+.solution-section h4:contains("ДНФ") {
+    border-image: linear-gradient(to right, #4CAF50, #81C784) 1;
+}
+
+.solution-section h4:contains("КНФ") {
+    border-image: linear-gradient(to right, #2196F3, #64B5F6) 1;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: #ccc;
+    margin: 20px 0;
+    opacity: 0.8;
+}
+
+/* Сброс центрирования только в блоке stepByStep */
+.stepByStep .karnaugh-map {
+    margin-left: 0;
+    margin-right: auto;
+}
+/* Выравнивание заголовка и таблицы слева внутри stepByStep */
+.stepByStep h3 {
+    text-align: center;
+    margin: 15px 0 25px;
+    font-size: 20px;
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.stepByStep h3:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background-color: #ddd;
+}
+
+.karnaugh-explanation {
+    text-align: left;
+    font-size: 16px;
+    margin-top: 15px;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+.area {
+    background-color: #ffeb3b;
+    font-weight: bold;
+    text-align: center;
+}
+
+.karnaugh-map .highlight {
+    background-color: #90ee90; /* светло-зелёный */
+}
+
+.karnaugh-step {
+    display: none;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.karnaugh-steps-nav {
+    margin: 15px 0;
+    padding: 10px;
+    background: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.karnaugh-steps-nav button {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.karnaugh-steps-nav button:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+.stepByStep h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.result-formula {
+    background-color: #fff9e6;
+    border: 1px solid #ffe0b2;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 15px auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    max-width: 800px;
+    width: 100%;
+}
+
+.formula-label {
+    font-size: 16px;
+    color: #333;
+    margin-right: 15px;
+    min-width: 65px;
+    font-weight: 500;
+}
+
+.formula-content {
+    font-size: 16px;
+    color: #000;
+    flex: 1;
+    text-align: left;
+}
+
+.minimization-result {
+    margin: 20px 0;
+    max-width: 800px;
+    width: 100%;
+}
+
+.minimization-result h5 {
+    font-size: 17px;
+    color: #333;
+    margin: 15px 0 12px;
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.minimization-result h5:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background-color: #ddd;
+}
+
+.formula-box {
+    background-color: #fff9e6;
+    border: 1px solid #ffe0b2;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #000;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.instructions h2 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Обновляем стили для всех основных блоков */
+.calculator, .stepByStep, .instructions, .truth-table-container {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.instructions ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.instructions ul li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.instructions ul li:before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: #555;
+}
+
+.karnaugh-step p {
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.tooltip {
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 1000; /* Всегда поверх всего */
+    pointer-events: none;
+}

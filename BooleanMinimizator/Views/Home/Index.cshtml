@@ -1,0 +1,613 @@
+@model BooleanMinimizator.Models.BooleanMinimizatorModel
+
+@{
+    ViewData["Title"] = "Boolean minimizer calculator";
+}
+
+<div class="calculator">
+    <h2>Калькулятор булевых функций</h2>
+
+    <form asp-action="Index" method="post">
+        <label for="inputField">Введите функцию или её вектор:</label>
+        <input type="text" asp-for="InputFunction" id="inputField" maxlength="64" placeholder="Например: 01110110"
+               data-help="Введите логическое выражение или вектор функции. Например: 01110110 или (x ∧ y) ∨ ¬z">
+
+        <div class="button-container">
+            <button type="submit" data-help="Нажмите для построения таблицы истинности и минимизации">Построить</button>
+            <button type="button" id="randomExpr" data-help="Генерирует случайное логическое выражение">Случайное выражение</button>
+        </div>
+
+        <div class="keyboard-container">
+            <div class="keyboard" id="keyboard">
+                <button type="button" class="key" data-help="Логическое ИЛИ">∨</button>
+                <button type="button" class="key" data-help="Логическое И">∧</button>
+                <button type="button" class="key" data-help="Логическое НЕ">¬</button>
+                <button type="button" class="key" data-help="Исключающее ИЛИ">⊕</button>
+                <button type="button" class="key" data-help="Импликация">→</button>
+                <button type="button" class="key" data-help="Эквиваленция">↔</button>
+                <button type="button" class="key" data-help="Открывающая скобка">(</button>
+                <button type="button" class="key" data-help="Закрывающая скобка">)</button>
+                <button type="button" class="key" data-help="Переменная w">w</button>
+                <button type="button" class="key" data-help="Переменная x">x</button>
+                <button type="button" class="key" data-help="Переменная y">y</button>
+                <button type="button" class="key" data-help="Переменная z">z</button>
+                <button type="button" class="key" data-help="Штрих Шеффера (НЕ-И)">↑</button>
+                <button type="button" class="key" data-help="Стрелка Пирса (НЕ-ИЛИ)">↓</button>
+                <button type="button" class="key" data-help="Логическая константа 1">1</button>
+                <button type="button" class="key" data-help="Логическая константа 0">0</button>
+            </div>
+            <button type="button" id="toggleKeyboard" data-help="Скрывает или показывает клавиатуру">Скрыть клавиатуру</button>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrEmpty(Model.ResultMessage))
+    {
+        <div id="output">
+            <p>@Model.ResultMessage</p>
+        </div>
+    }
+
+    @if (Model.FunctionExpression is not null)
+    {
+        <div class="alert alert-secondary mt-3">
+            <strong>Функция:</strong> @Model.FunctionExpression
+        </div>
+    }
+
+    @if (Model.VectorOutput is not null)
+    {
+        <div class="alert alert-info mt-3">
+            <strong>Вектор функции:</strong> @Model.VectorOutput
+        </div>
+    }
+
+    @if (Model.TruthTable != null && Model.TruthTable.Any())
+    {
+        <div class="mt-3">
+            <h3>Таблица истинности</h3>
+            <table class="truth-table">
+                <thead>
+                    <tr>
+                        @foreach (var variable in Model.TruthTable.First().Keys)
+                        {
+                            <th>@variable</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.TruthTable)
+                    {
+                        <tr>
+                            @foreach (var variable in row.Keys)
+                            {
+                                <td>@(row[variable] ? "1" : "0")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (Model.IsSolved)
+{
+    <!-- Блок с СКНФ и СДНФ -->
+    <div class="stepByStep">
+        <div class="minimization-result">
+            <h5>СКНФ</h5>
+            <div class="formula-box">@Model.SKNFOutput</div>
+            <button type="button" class="hint-toggle" onclick="toggleHint('sknfHint')">Показать/скрыть подсказку</button>
+            <div id="sknfHint" class="minimization-hint" style="display: none;">
+                <h5>Как строить СКНФ:</h5>
+                <ol>
+                    <li style="text-align: left;">Найдите все строки таблицы истинности, где функция равна 0</li>
+                    <li style="text-align: left;">Для каждой такой строки создайте дизъюнкцию всех переменных</li>
+                    <li style="text-align: left;">Если в строке переменная имеет значение 1, то она входит с отрицанием</li>
+                    <li style="text-align: left;">Если в строке переменная имеет значение 0, то она входит без отрицания</li>
+                    <li style="text-align: left;">Соедините все полученные дизъюнкции операцией конъюнкции (∧)</li>
+                    <li style="text-align: left;">Результат будет совершенной конъюнктивной нормальной формой</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="minimization-result">
+            <h5>СДНФ</h5>
+            <div class="formula-box">@Model.SDNFOutput</div>
+            <button type="button" class="hint-toggle" onclick="toggleHint('sdnfHint')">Показать/скрыть подсказку</button>
+            <div id="sdnfHint" class="minimization-hint" style="display: none;">
+                <h5>Как строить СДНФ:</h5>
+                <ol>
+                    <li style="text-align: left;">Найдите все строки таблицы истинности, где функция равна 1</li>
+                    <li style="text-align: left;">Для каждой такой строки создайте конъюнкцию всех переменных</li>
+                    <li style="text-align: left;">Если в строке переменная имеет значение 0, то она входит с отрицанием</li>
+                    <li style="text-align: left;">Если в строке переменная имеет значение 1, то она входит без отрицания</li>
+                    <li style="text-align: left;">Соедините все полученные конъюнкции операцией дизъюнкции (∨)</li>
+                    <li style="text-align: left;">Результат будет совершенной дизъюнктивной нормальной формой</li>
+
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок с картой Карно -->
+    <div class="stepByStep">
+        <h3>Пошаговое построение карты Карно</h3>
+
+        <!-- Навигация -->
+        <div class="karnaugh-steps-nav">
+            <button type="button" onclick="prevStep()">Назад</button>
+            <span id="currentStep">1</span>/@Model.KarnaughSteps.Count
+            <button type="button" onclick="nextStep()">Вперед</button>
+        </div>
+
+        <!-- Контейнер для карты -->
+        <div id="karnaughStepsContainer">
+            @foreach (var step in Model.KarnaughSteps)
+            {
+                <div class="karnaugh-step">
+                    <p>@step.Description</p>
+                    <table class="karnaugh-map">
+                        @foreach (var row in step.Map)
+                        {
+                            <tr>
+                                @foreach (var cell in row)
+                                {
+                                    if (row == step.Map.First())
+                                    {
+                                        <th>@cell</th>
+                                    }
+                                    else if (cell == "1")
+                                    {
+                                        <td class="one">@cell</td>
+                                    }
+                                    else if (cell == "0")
+                                    {
+                                        <td class="zero">@cell</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@cell</td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.karnaugh-step');
+        const totalSteps = steps.length;
+
+        function showStep(step) {
+            steps.forEach((s, i) => s.style.display = i === step ? 'block' : 'none');
+            document.getElementById('currentStep').textContent = step + 1;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        // Показать последний шаг при загрузке
+        currentStep = totalSteps - 1;
+        showStep(currentStep);
+    </script>
+
+    <!-- Блок с пошаговым решением -->
+    <div class="stepByStep">
+        <hr />
+        <div class="solution-title">Пошаговое решение</div>
+        <hr />
+        <div class="solution-section">
+            <h4>Минимизация ДНФ</h4>
+            <button type="button" class="hint-toggle" onclick="toggleHint('dnfHint')">Показать/скрыть подсказку</button>
+            <div id="dnfHint" class="minimization-hint" style="display: none;">
+                <h5>Как выделять области для МДНФ:</h5>
+                <ol>
+                    <li>Ищите группы единиц (1) на карте Карно</li>
+                    <li>Области должны быть размером 2ⁿ (1, 2, 4, 8, ...)</li>
+                    <li>Старайтесь выделить максимально большие области</li>
+                    <li>Области могут перекрываться</li>
+                    <li>Области могут "заворачиваться" через края карты</li>
+                    <li>Все единицы должны быть покрыты хотя бы одной областью</li>
+                </ol>
+            </div>
+        </div>
+        <hr />
+
+        @if (Model.Areas != null && Model.Areas.Any())
+        {
+            <div class="areas-maps mt-4">
+                @for (int index = 0; index < Model.Areas.Count; index++)
+                {
+                    var area = Model.Areas[index];
+                    var mapCopy = Model.KarnaughMap.Select(row => row.ToList()).ToList();
+                    int rowCount = mapCopy.Count;
+                    int colCount = mapCopy[0].Count;
+
+                    bool[,] highlightMask = new bool[rowCount, colCount];
+
+                    for (int r = area.StartRow; r < area.StartRow + area.Height; r++)
+                    {
+                        for (int c = area.StartCol; c < area.StartCol + area.Width; c++)
+                        {
+                            int wrappedRow = ((r % (rowCount - 1)) + 1); // Пропуск заголовка строк
+                            int wrappedCol = ((c % (colCount - 1)) + 1); // Пропуск заголовка столбцов
+                            highlightMask[wrappedRow, wrappedCol] = true;
+                        }
+                    }
+
+                    <div class="highlight-area mt-4">
+                        <h5>Область №@(index + 1)</h5>
+                        <table class="karnaugh-map">
+                            @for (int r = 0; r < rowCount; r++)
+                            {
+                                <tr>
+                                    @for (int c = 0; c < colCount; c++)
+                                    {
+                                        var cell = mapCopy[r][c];
+                                        if (r == 0)
+                                        {
+                                            <th>@cell</th>
+                                        }
+                                        else if (highlightMask[r, c])
+                                        {
+                                            <td class="highlight">@Model.KarnaughMap[r][c]</td>
+                                        }
+                                        else if (cell == "1")
+                                        {
+                                            <td class="one">@cell</td>
+                                        }
+                                        else if (cell == "0")
+                                        {
+                                            <td class="zero">@cell</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@cell</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </table>
+                        <!-- Вывод формулы -->
+                        <p><strong>Формула:</strong> @(Model.GetExpressionForArea(area, Model.Variables))</p>
+                    </div>
+                }
+            </div>
+        }
+        @if (Model.ZeroAreas != null && Model.ZeroAreas.Any())
+        {
+            <div class="areas-maps mt-4">
+                <div class="solution-section">
+                    <h4>Минимизация КНФ</h4>
+                    <button type="button" class="hint-toggle" onclick="toggleHint('knfHint')">Показать/скрыть подсказку</button>
+                    <div id="knfHint" class="minimization-hint" style="display: none;">
+                        <h5>Как выделять области для МКНФ:</h5>
+                        <ol>
+                            <li>Ищите группы нулей (0) на карте Карно</li>
+                            <li>Области должны быть размером 2ⁿ (1, 2, 4, 8, ...)</li>
+                            <li>Старайтесь выделить максимально большие области</li>
+                            <li>Области могут перекрываться</li>
+                            <li>Области могут "заворачиваться" через края карты</li>
+                            <li>Все нули должны быть покрыты хотя бы одной областью</li>
+                        </ol>
+                    </div>
+                </div>
+                <hr />
+                @for (int index = 0; index < Model.ZeroAreas.Count; index++)
+                {
+                    var area = Model.ZeroAreas[index];
+                    var mapCopy = Model.KarnaughMap.Select(row => row.ToList()).ToList();
+                    int rowCount = mapCopy.Count;
+                    int colCount = mapCopy[0].Count;
+
+                    bool[,] zeroHighlightMask = new bool[rowCount, colCount];
+
+                    for (int r = area.StartRow; r < area.StartRow + area.Height; r++)
+                    {
+                        for (int c = area.StartCol; c < area.StartCol + area.Width; c++)
+                        {
+                            int wrappedRow = ((r % (rowCount - 1)) + 1); // Пропуск заголовка строк
+                            int wrappedCol = ((c % (colCount - 1)) + 1); // Пропуск заголовка столбцов
+                            zeroHighlightMask[wrappedRow, wrappedCol] = true;
+                        }
+                    }
+
+                    <div class="highlight-area mt-4">
+                        <h5>Область №@(index + 1)</h5>
+                        <table class="karnaugh-map">
+                            @for (int r = 0; r < rowCount; r++)
+                            {
+                                <tr>
+                                    @for (int c = 0; c < colCount; c++)
+                                    {
+                                        var cell = mapCopy[r][c];
+                                        if (r == 0)
+                                        {
+                                            <th>@cell</th>
+                                        }
+                                        else if (zeroHighlightMask[r, c])
+                                        {
+                                            <td class="zero-highlight">@Model.KarnaughMap[r][c]</td>
+                                        }
+                                        else if (cell == "1")
+                                        {
+                                            <td class="one">@cell</td>
+                                        }
+                                        else if (cell == "0")
+                                        {
+                                            <td class="zero">@cell</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@cell</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </table>
+                        <!-- Вывод формулы -->
+                        <p><strong>Формула:</strong> @(Model.GetExpressionForZeroArea(area, Model.Variables))</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <!-- Вывод МДНФ и МКНФ -->
+    <div class="stepByStep">
+        @if (!string.IsNullOrEmpty(Model.MDNFOutput))
+        {
+            <div class="minimization-result">
+                <h5>МДНФ</h5>
+                <div class="formula-box">@Model.MDNFOutput</div>
+                <button type="button" class="hint-toggle" onclick="toggleHint('mdnfHint')">Показать/скрыть подсказку</button>
+                <div id="mdnfHint" class="minimization-hint" style="display: none;">
+                    <h5>Как получить МДНФ:</h5>
+                    <ol>
+                        <li style="text-align: left;">Объедините все выделенные области единиц с карты Карно, используя операцию дизъюнкции (∨)</li>
+                        <li style="text-align: left;">Каждая область представляет собой конъюнкцию (∧) переменных или их отрицаний, которые не меняются внутри области</li>
+                    </ol>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.MKNFOutput))
+        {
+            <div class="minimization-result">
+                <h5>МКНФ</h5>
+                <div class="formula-box">@Model.MKNFOutput</div>
+                <button type="button" class="hint-toggle" onclick="toggleHint('mknfHint')">Показать/скрыть подсказку</button>
+                <div id="mknfHint" class="minimization-hint" style="display: none;">
+                    <h5>Как получить МКНФ:</h5>
+                    <ol>
+                        <li style="text-align: left;">Объедините все выделенные области нулей с карты Карно, используя операцию конъюнкции (∧)</li>
+                        <li style="text-align: left;">Каждая область представляет собой дизъюнкцию (∨) переменных или их отрицаний, которые не меняются внутри области</li>
+                    </ol>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+<section class="instructions">
+    <h2>Как пользоваться калькулятором</h2>
+    <ul>
+        <li> Введите в поле логическую функцию или её вектор.</li>
+        <li> Используйте клавиатуру для быстрого ввода символов.</li>
+        <li> Нажмите на кнопку "Построить" для расчёта минимизации.</li>
+        <li> Если вы не понимаете значение какой-либо кнопки, наведитесь на неё и нажмите F1, чтобы узнать её назначение.</li>
+    </ul>
+</section>
+
+<a href="/UserHelp/vvedenie.htm" target="_blank" id="helpButton" class="button" data-help="Открывает информацию о поддержке">Поддержка</a>
+
+<div id="supportText" class="support-text">
+    <h3>Как получить поддержку</h3>
+    <p>Если у вас возникли проблемы, обратитесь к нам в Telegram.</p>
+    <p><strong>Telegram:</strong> @@obemamaster</p>
+    <p>Мы всегда готовы помочь!</p>
+</div>
+
+<script src="~/js/contextHelp.js"></script>
+
+<style>
+    .minimization-hint {
+        background-color: #ffffff;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .hint-toggle {
+        background: white;
+        color: black;
+        border: 2px solid #333;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px 0;
+        font-size: 0.9em;
+        transition: 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .hint-toggle:hover {
+            background: #f5f5f5;
+            border-color: #000;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+    .minimization-hint h5 {
+        color: #333;
+        font-family: 'Poppins', sans-serif;
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .minimization-hint ol {
+        margin-top: 15px;
+        padding-left: 25px;
+    }
+
+    .minimization-hint li {
+        margin-bottom: 8px;
+        color: #333;
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    button[type="submit"], #randomExpr, #toggleKeyboard {
+        background: linear-gradient(145deg, #555, #555);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        margin: 10px 5px;
+        min-width: 180px;
+        height: 45px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        button[type="submit"]:hover, #randomExpr:hover, #toggleKeyboard:hover {
+            background: linear-gradient(145deg, #222, #333);
+        }
+
+    .button-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 10px 0;
+    }
+
+    .keyboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    #helpButton.button {
+        display: inline-block;
+        background: linear-gradient(145deg, #555, #555);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        margin: 10px 5px;
+        text-decoration: none;
+    }
+    
+    #helpButton.button:hover {
+        background: linear-gradient(145deg, #222, #333);
+    }
+
+    .keyboard {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 15px;
+        background: linear-gradient(145deg, #ffffff, #ffffff);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        border: 2px solid #888;
+        width: 100%;
+    }
+
+    #toggleKeyboard {
+        margin-top: 5px;
+    }
+</style>
+
+<script>
+    function toggleHint(hintId) {
+        const hint = document.getElementById(hintId);
+        if (hint.style.display === 'none') {
+            hint.style.display = 'block';
+        } else {
+            hint.style.display = 'none';
+        }
+    }
+
+    function generateRandomExpression() {
+        const operators = ['∧', '∨', '⊕', '→', '↔', '↓', '↑'];
+        const variables = ['w', 'x', 'y', 'z'];
+        const maxLength = 32;
+
+        // Выбираем случайное количество переменных (2-4) с большей вероятностью 4
+        const varCountProbability = Math.random();
+        const numVars = varCountProbability < 0.5 ? 4 : // 50% шанс для 4 переменных
+            varCountProbability < 0.75 ? 3 : // 25% шанс для 3 переменных
+                2; // 25% шанс для 2 переменных
+        const selectedVars = variables.slice(0, numVars);
+
+        function generateSubExpression(depth = 0, usedVars = new Set()) {
+            if (depth > 3 || (usedVars.size === numVars && Math.random() < 0.3)) {
+                // Если использовали не все переменные, выбираем из неиспользованных
+                let availableVars = selectedVars.filter(v => !usedVars.has(v));
+                if (availableVars.length === 0) {
+                    availableVars = selectedVars;
+                }
+                const variable = availableVars[Math.floor(Math.random() * availableVars.length)];
+                usedVars.add(variable);
+                return Math.random() < 0.3 ? `¬${variable}` : variable;
+            }
+
+            // Генерируем подвыражение
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+            const left = generateSubExpression(depth + 1, usedVars);
+            const right = generateSubExpression(depth + 1, usedVars);
+
+            return `(${left}${operator}${right})`;
+        }
+
+        let expression;
+        let usedVars;
+
+        // Генерируем выражение, пока не будут использованы все выбранные переменные
+        do {
+            usedVars = new Set();
+            expression = generateSubExpression(0, usedVars);
+        } while (usedVars.size < numVars || expression.length > maxLength);
+
+        return expression;
+    }
+
+    document.getElementById('randomExpr').addEventListener('click', function () {
+        const inputField = document.getElementById('inputField');
+        inputField.value = generateRandomExpression();
+        // Автоматически отправляем форму
+        inputField.form.submit();
+    });
+</script>

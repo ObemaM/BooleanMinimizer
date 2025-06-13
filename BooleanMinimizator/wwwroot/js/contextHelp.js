@@ -1,9 +1,75 @@
+let tooltipsActive = true;
+let activeTooltip = null; // To keep track of the currently displayed tooltip
+
+function initializeTooltips() {
+    const elements = document.querySelectorAll('[data-help]');
+    
+    elements.forEach(element => {
+        // Remove existing listeners to prevent duplicates if called multiple times
+        element.removeEventListener('mouseenter', handleMouseEnter);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+
+        element.addEventListener('mouseenter', handleMouseEnter);
+        element.addEventListener('mouseleave', handleMouseLeave);
+    });
+}
+
+function handleMouseEnter(event) {
+    const inputField = document.getElementById('inputField');
+    if (inputField && inputField.value.length > 0) {
+        // If input field is not empty, do not show tooltip
+        return;
+    }
+
+    const element = event.currentTarget;
+    const helpText = element.getAttribute('data-help');
+    
+    if (helpText) {
+        // Remove any existing active tooltip before creating a new one
+        if (activeTooltip && activeTooltip.parentNode) {
+            activeTooltip.parentNode.removeChild(activeTooltip);
+        }
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = helpText;
+        document.body.appendChild(tooltip);
+        activeTooltip = tooltip;
+
+        const rect = element.getBoundingClientRect();
+        tooltip.style.top = rect.bottom + window.scrollY + 5 + 'px';
+        tooltip.style.left = rect.left + window.scrollX + 'px';
+    }
+}
+
+function handleMouseLeave() {
+    if (activeTooltip && activeTooltip.parentNode) {
+        activeTooltip.parentNode.removeChild(activeTooltip);
+        activeTooltip = null;
+    }
+}
+
+function deactivateAllTooltips() {
+    tooltipsActive = false;
+    if (activeTooltip && activeTooltip.parentNode) {
+        activeTooltip.parentNode.removeChild(activeTooltip);
+        activeTooltip = null;
+    }
+    // Optionally, remove all event listeners if tooltips should never reactivate
+    // For this case, we'll just rely on the tooltipsActive flag
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     let lastHoveredElement = null;
     let lastFocusedElement = null;
 
     // Сохраняем элемент, на который навели мышку
     document.body.addEventListener("mouseover", (e) => {
+        const inputField = document.getElementById('inputField');
+        if (inputField && inputField.value.length > 0) {
+            lastHoveredElement = null;
+            return;
+        }
         if (e.target.dataset.help) {
             lastHoveredElement = e.target;
         }
@@ -18,6 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Сохраняем элемент, на котором фокус (например, input)
     document.body.addEventListener("focusin", (e) => {
+        const inputField = document.getElementById('inputField');
+        if (inputField && inputField.value.length > 0) {
+            lastFocusedElement = null;
+            return;
+        }
         if (e.target.dataset.help) {
             lastFocusedElement = e.target;
         }
@@ -50,6 +121,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+    // Initialize tooltips on page load
+    initializeTooltips();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -126,28 +200,4 @@ keys.forEach(key => {
 
 // Support button is now a direct link - no JavaScript needed
 const supportText = document.getElementById('supportText');
-
-// Context help tooltips
-document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('[data-help]');
-    
-    elements.forEach(element => {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.textContent = element.getAttribute('data-help');
-        
-        element.addEventListener('mouseenter', () => {
-            document.body.appendChild(tooltip);
-            const rect = element.getBoundingClientRect();
-            tooltip.style.top = rect.bottom + window.scrollY + 5 + 'px';
-            tooltip.style.left = rect.left + window.scrollX + 'px';
-        });
-        
-        element.addEventListener('mouseleave', () => {
-            if (tooltip.parentNode) {
-                tooltip.parentNode.removeChild(tooltip);
-            }
-        });
-    });
-});
 

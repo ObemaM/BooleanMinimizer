@@ -4,6 +4,158 @@
     ViewData["Title"] = "Boolean minimizer calculator";
 }
 
+@section Scripts {
+    <script src="~/js/site.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputField = document.getElementById('inputField');
+            const keyboard = document.getElementById('keyboard');
+            
+            // Функция для точного подсчета длины строки
+            function getStringLength(str) {
+                return Array.from(str).length;
+            }
+
+            // Функция для обрезки строки до нужной длины
+            function truncateString(str, maxLength) {
+                return Array.from(str).slice(0, maxLength).join('');
+            }
+
+            // Функция для создания эффекта тряски
+            function shakeInput() {
+                let position = 0;
+                const interval = setInterval(() => {
+                    if (position >= 0) {
+                        inputField.style.transform = `translateX(${position}px)`;
+                        position = -position;
+                    } else {
+                        position = -position + 1;
+                    }
+                    if (position > 3) {
+                        clearInterval(interval);
+                        inputField.style.transform = 'translateX(0)';
+                    }
+                }, 50);
+            }
+
+            // Функция для создания эффекта пульсации границы
+            function pulseBorder() {
+                inputField.style.borderColor = '#ff6b6b';
+                inputField.style.boxShadow = '0 0 0 2px rgba(255, 107, 107, 0.2)';
+                setTimeout(() => {
+                    inputField.style.borderColor = '';
+                    inputField.style.boxShadow = '';
+                }, 300);
+            }
+
+            // Функция для проверки и обновления значения поля ввода
+            function updateInputValue(newValue, cursorPosition) {
+                const currentLength = getStringLength(newValue);
+                if (currentLength > 64) {
+                    const truncatedValue = truncateString(newValue, 64);
+                    inputField.value = truncatedValue;
+                    shakeInput();
+                    pulseBorder();
+                    
+                    // Устанавливаем курсор в конец, если он был за пределами обрезанного текста
+                    if (cursorPosition > 64) {
+                        inputField.setSelectionRange(64, 64);
+                    } else {
+                        inputField.setSelectionRange(cursorPosition, cursorPosition);
+                    }
+                    return false;
+                }
+                inputField.value = newValue;
+                return true;
+            }
+
+            // Функция для вставки символа в позицию курсора
+            function insertSymbol(symbol) {
+                const start = inputField.selectionStart;
+                const end = inputField.selectionEnd;
+                const currentText = inputField.value;
+                const newValue = currentText.slice(0, start) + symbol + currentText.slice(end);
+                const newCursorPos = start + symbol.length;
+                
+                if (updateInputValue(newValue, newCursorPos)) {
+                    inputField.setSelectionRange(newCursorPos, newCursorPos);
+                    inputField.focus();
+                }
+            }
+            
+            if (inputField) {
+                // Обработка ввода с клавиатуры
+                inputField.addEventListener('input', function() {
+                    const cursorPos = this.selectionStart;
+                    updateInputValue(this.value, cursorPos);
+                });
+
+                // Обработка вставки текста
+                inputField.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                    const currentText = this.value;
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const newValue = currentText.slice(0, start) + pastedText + currentText.slice(end);
+                    const newCursorPos = start + pastedText.length;
+                    updateInputValue(newValue, newCursorPos);
+                });
+
+                // Обработка кнопок виртуальной клавиатуры
+                if (keyboard) {
+                    // Удаляем все существующие обработчики
+                    const oldKeys = keyboard.querySelectorAll('.key');
+                    oldKeys.forEach(key => {
+                        const newKey = key.cloneNode(true);
+                        key.parentNode.replaceChild(newKey, key);
+                    });
+
+                    // Добавляем новые обработчики
+                    const keys = keyboard.querySelectorAll('.key');
+                    keys.forEach(key => {
+                        key.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            insertSymbol(this.textContent);
+                            return false;
+                        };
+                    });
+                }
+
+                // Обработка ввода с клавиатуры (keydown)
+                inputField.addEventListener('keydown', function(e) {
+                    // Разрешаем специальные клавиши (backspace, delete, стрелки и т.д.)
+                    if (e.key.length === 1) {
+                        const currentText = this.value;
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        const newValue = currentText.slice(0, start) + e.key + currentText.slice(end);
+                        const newCursorPos = start + 1;
+                        
+                        if (getStringLength(newValue) > 64) {
+                            e.preventDefault();
+                            shakeInput();
+                            pulseBorder();
+                        }
+                    }
+                });
+
+                // Обработка случайной генерации
+                const randomExprButton = document.getElementById('randomExpr');
+                if (randomExprButton) {
+                    randomExprButton.addEventListener('click', function() {
+                        // Здесь будет код генерации случайного выражения
+                        // После генерации используем updateInputValue для проверки длины
+                        const generatedExpr = generateRandomExpression(); // Предполагаемая функция генерации
+                        updateInputValue(generatedExpr, generatedExpr.length);
+                    });
+                }
+            }
+        });
+    </script>
+}
+
 <div class="calculator">
     <h2>Калькулятор булевых функций</h2>
 

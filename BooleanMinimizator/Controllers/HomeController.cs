@@ -19,6 +19,14 @@ namespace BooleanMinimizator.Controllers
             {
                 try
                 {
+                    // Проверка длины с учетом Unicode символов
+                    if (model.InputFunction.Length > 64 || model.InputFunction.ToCharArray().Length > 64)
+                    {
+                        model.ResultMessage = "Ошибка: Длина ввода не может превышать 64 символа";
+                        model.IsSolved = false;
+                        return View(model);
+                    }
+
                     var syntaxAnalyzer = new SyntaxAnalyzer();
                     Node rootNode = syntaxAnalyzer.Parse(model.InputFunction);
 

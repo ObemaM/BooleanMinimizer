@@ -226,7 +226,7 @@ namespace BooleanMinimizerLibrary
                 if (ch != '0' && ch != '1')
                     return false;
             }
-            return input.Length >= 4 && IsPowerOfTwo(input.Length);
+            return input.Length >= 2 && IsPowerOfTwo(input.Length);
         }
     }
 }

@@ -31,10 +31,10 @@ namespace BooleanMinimizerLibrary
             if (isVector)
             {
                 if (input.Length == 1)
-                    throw new ArgumentException("Ошибка: Вектор не может состоять из одного символа. Введите вектор длиной 2, 4, 8, 16 или 32 символа.");
+                    throw new ArgumentException("Ошибка: Вектор не может состоять из одного символа. Введите вектор длиной 2, 4, 8 или 16 символов.");
                 
                 if (!IsPowerOfTwo(input.Length))
-                    throw new ArgumentException($"Ошибка: Вектор имеет недопустимую длину {input.Length}. Допустимые длины: 2, 4, 8, 16, 32 символа.");
+                    throw new ArgumentException($"Ошибка: Вектор имеет недопустимую длину {input.Length}. Допустимые длины: 2, 4, 8, 16 символов.");
 
                 parsingPureVector = true;
                 var variables = new List<string>();
@@ -47,7 +47,7 @@ namespace BooleanMinimizerLibrary
                         1 => "x",
                         2 => "y",
                         3 => "z",
-                        _ => throw new Exception("Вектор не должен быть длиннее 32 символов")
+                        _ => throw new Exception("Вектор не должен быть длиннее 16 символов")
                     });
                 }
 
@@ -156,7 +156,15 @@ namespace BooleanMinimizerLibrary
             }
             else if (currentChar == '0' || currentChar == '1')
             {
-                if (IsVector())
+                // Проверяем, является ли это началом вектора (длиной >= 2)
+                int tempPos = pos;
+                bool isPartOfVector = false;
+                if (tempPos < expr.Length && (expr[tempPos] == '0' || expr[tempPos] == '1'))
+                {
+                    isPartOfVector = true;
+                }
+
+                if (isPartOfVector)
                 {
                     if (!parsingPureVector)
                         ThrowError("Ошибка: вектор не может быть совмещен с функцией. Введите вектор отдельно.");
@@ -164,7 +172,7 @@ namespace BooleanMinimizerLibrary
                     string vector = ReadVector();
 
                     if (!IsPowerOfTwo(vector.Length))
-                        ThrowError("Ошибка: вектор должен иметь длину степени два (2, 4, 8, 16, 32)");
+                        ThrowError("Ошибка: вектор должен иметь длину степени два (допустимые значения: 2, 4, 8, 16)");
 
                     int numVars = (int)Math.Log(vector.Length, 2);
                     var variables = new List<string>();
@@ -184,8 +192,10 @@ namespace BooleanMinimizerLibrary
                 }
                 else
                 {
-                    ThrowError("Ошибка: нельзя использовать одиночные константы 0 или 1. Используйте переменные или введите вектор.");
-                    return null;
+                    // Это одиночная константа '0' или '1'
+                    string constantValue = currentChar.ToString();
+                    NextChar();
+                    return new Node(NodeType.Constant, constantValue);
                 }
             }
             else if (currentChar == '(')
@@ -231,7 +241,7 @@ namespace BooleanMinimizerLibrary
             }
 
             if (!IsPowerOfTwo(result.Length))
-                ThrowError("Вектор должен быть длины степени два (1, 2, 4, 8, 16, 32)");
+                ThrowError("Вектор должен быть длины степени два (допустимые значения: 2, 4, 8, 16)");
 
             return result;
         }
@@ -247,10 +257,10 @@ namespace BooleanMinimizerLibrary
             }
             
             if (input.Length == 1)
-                throw new ArgumentException("Ошибка: Вектор не может состоять из одного символа. Введите вектор длиной 2, 4, 8, 16 или 32 символа.");
+                throw new ArgumentException("Ошибка: Вектор не может состоять из одного символа. Введите вектор длиной 2, 4, 8 или 16 символов.");
             
             if (!IsPowerOfTwo(input.Length))
-                throw new ArgumentException($"Ошибка: Вектор имеет недопустимую длину {input.Length}. Допустимые длины: 2, 4, 8, 16, 32 символа.");
+                throw new ArgumentException($"Ошибка: Вектор имеет недопустимую длину {input.Length}. Допустимые длины: 2, 4, 8, 16 символов.");
                 
             return true;
         }

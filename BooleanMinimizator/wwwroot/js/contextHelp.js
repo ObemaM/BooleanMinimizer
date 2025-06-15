@@ -1,11 +1,10 @@
 let tooltipsActive = true;
-let activeTooltip = null; // To keep track of the currently displayed tooltip
+let activeTooltip = null;
 
 function initializeTooltips() {
     const elements = document.querySelectorAll('[data-help]');
     
     elements.forEach(element => {
-        // Remove existing listeners to prevent duplicates if called multiple times
         element.removeEventListener('mouseenter', handleMouseEnter);
         element.removeEventListener('mouseleave', handleMouseLeave);
 
@@ -17,7 +16,6 @@ function initializeTooltips() {
 function handleMouseEnter(event) {
     const inputField = document.getElementById('inputField');
     if (inputField && inputField.value.length > 0) {
-        // If input field is not empty, do not show tooltip
         return;
     }
 
@@ -25,7 +23,6 @@ function handleMouseEnter(event) {
     const helpText = element.getAttribute('data-help');
     
     if (helpText) {
-        // Remove any existing active tooltip before creating a new one
         if (activeTooltip && activeTooltip.parentNode) {
             activeTooltip.parentNode.removeChild(activeTooltip);
         }
@@ -55,8 +52,6 @@ function deactivateAllTooltips() {
         activeTooltip.parentNode.removeChild(activeTooltip);
         activeTooltip = null;
     }
-    // Optionally, remove all event listeners if tooltips should never reactivate
-    // For this case, we'll just rely on the tooltipsActive flag
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -122,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Initialize tooltips on page load
     initializeTooltips();
 });
 
@@ -137,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Karnaugh map navigation
 let currentStep = 0;
 const steps = document.querySelectorAll('.karnaugh-step');
 
@@ -160,14 +153,12 @@ function prevStep() {
     }
 }
 
-// Initialize first step
 document.addEventListener('DOMContentLoaded', () => {
     if (steps.length > 0) {
         showStep(0);
     }
 });
 
-// Toggle keyboard visibility
 const toggleKeyboardBtn = document.getElementById('toggleKeyboard');
 const keyboard = document.getElementById('keyboard');
 
@@ -179,7 +170,6 @@ if (toggleKeyboardBtn && keyboard) {
     });
 }
 
-// Virtual keyboard functionality
 const inputField = document.getElementById('inputField');
 const keys = document.querySelectorAll('.key');
 
@@ -198,6 +188,5 @@ keys.forEach(key => {
     });
 });
 
-// Support button is now a direct link - no JavaScript needed
 const supportText = document.getElementById('supportText');
 

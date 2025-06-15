@@ -55,7 +55,6 @@
                     const truncatedValue = truncateString(newValue, 64);
                     inputField.value = truncatedValue;
                     shakeInput();
-                    pulseBorder();
                     
                     // Устанавливаем курсор в конец, если он был за пределами обрезанного текста
                     if (cursorPosition > 64) {
@@ -117,6 +116,11 @@
                         key.onclick = function(e) {
                             e.preventDefault();
                             e.stopPropagation();
+                            const currentLength = getStringLength(inputField.value);
+                            if (currentLength >= 64) {
+                                shakeInput();
+                                return false;
+                            }
                             insertSymbol(this.textContent);
                             return false;
                         };
@@ -139,7 +143,6 @@
                         if (getStringLength(newValue) > 64) {
                             e.preventDefault();
                             shakeInput();
-                            pulseBorder();
                         }
                     }
                 });

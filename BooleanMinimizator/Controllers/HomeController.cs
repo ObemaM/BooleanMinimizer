@@ -55,7 +55,7 @@ namespace BooleanMinimizator.Controllers
                 }
                 catch (Exception ex)
                 {
-                    model.ResultMessage = $"Ошибка: {ex.Message}";
+                    model.ResultMessage = $"{ex.Message}";
                     model.IsSolved = false;
                 }
             }

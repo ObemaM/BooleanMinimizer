@@ -20,6 +20,5 @@ DR_EXPLAIN.searchIndex.ids = {
 	"17": ["5 АВАРИЙНЫ... Требуется платная лицензия!", "avarijnye_situatsii.htm", []],
 	"18": ["6 РЕКОМЕНДАЦИ... Требуется платная лицензия!", "rekomendatsii_po_osvoeniyu.htm", []],
 	"19": ["6.1 Инт... Требуется платная лицензия!", "interfejs_.htm", [10]],
-	"20": ["7 ТЕРМИНЫ И... Требуется платная лицензия!", "terminy_i_sokrashcheniya.htm", []],
-	"21": ["Лист регистра... Требуется платная лицензия!", "list_registratsii_izmenenij.htm", []]
+	"20": ["7 ТЕРМИНЫ И... Требуется платная лицензия!", "terminy_i_sokrashcheniya.htm", []]
 };

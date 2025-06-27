@@ -169,7 +169,7 @@ namespace BooleanMinimizerLibrary
             step3[1] = new List<string> { "00", vector[0].ToString(), vector[1].ToString(), vector[3].ToString(), vector[2].ToString() };
             step3[2] = new List<string> { "01", vector[4].ToString(), vector[5].ToString(), vector[7].ToString(), vector[6].ToString() };
             steps.Add(new KarnaughStep(
-                "Заполняем ячейки для комбинаций CD: 00, 01, 11, 10 при AB=00",
+                "Заполняем ячейки для комбинаций " + variables[2] + variables[3] + ": 00, 01, 11, 10 при " + variables[0] + variables[1] + ": 00, 01",
                 step3
             ));
 
@@ -187,7 +187,7 @@ namespace BooleanMinimizerLibrary
             step5[3] = new List<string> { "11", vector[12].ToString(), vector[13].ToString(), vector[15].ToString(), vector[14].ToString() };
             step5[4] = new List<string> { "10", vector[8].ToString(), vector[9].ToString(), vector[11].ToString(), vector[10].ToString() };
             steps.Add(new KarnaughStep(
-                "Заполняем ячейки для комбинаций CD: 00, 01, 11, 10 при AB=11",
+                "Заполняем ячейки для комбинаций " + variables[2] + variables[3] + ": 00, 01, 11, 10 при " + variables[0] + variables[1] + ": 11, 10",
                 step5
             ));
 

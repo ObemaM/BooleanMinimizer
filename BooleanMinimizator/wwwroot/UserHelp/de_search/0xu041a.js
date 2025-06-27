@@ -1,7 +1,7 @@
 DR_EXPLAIN = DR_EXPLAIN || {};
 DR_EXPLAIN.searchIndex = DR_EXPLAIN.searchIndex || {};
 DR_EXPLAIN.searchIndex["\u041a"] = [
-	{ "s": "К", "p": [12, 4, 17, 15, 14, 13, 18, 9, 5] },
+	{ "s": "К", "p": [12, 4, 17, 18, 15, 14, 13, 9, 5] },
 	{ "s": "КАЖДОГО", "p": [8] },
 	{ "s": "КАЖДОЙ", "p": [16] },
 	{ "s": "КАК", "p": [19, 18, 13, 7] },
